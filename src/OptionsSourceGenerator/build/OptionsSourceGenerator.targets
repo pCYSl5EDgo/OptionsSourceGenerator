@@ -1,0 +1,7 @@
+<Project>
+	<Target Name="_OptionsSourceGeneratorMultiTargetRoslyn3" Condition="'$(SupportsRoslynComponentVersioning)' != 'true'" BeforeTargets="CoreCompile">
+		<ItemGroup>
+			<Analyzer Remove="@(Analyzer)" Condition="$([System.String]::Copy('%(Analyzer.Identity)').IndexOf('OptionsSourceGenerator.dll')) &gt;= 0"/>
+		</ItemGroup>
+	</Target>
+</Project>
