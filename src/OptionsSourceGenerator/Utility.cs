@@ -20,8 +20,13 @@ public static class Utility
             return Array.Empty<string>();
         }
 
+        return SelectCompilerVisiblePropertySortedSet(text.ToString(), token);
+    }
+
+    public static IEnumerable<string> SelectCompilerVisiblePropertySortedSet(string text, CancellationToken token)
+    {
         var document = new XmlDocument();
-        document.LoadXml(text.ToString());
+        document.LoadXml(text);
         if (!document.HasChildNodes)
         {
             return Array.Empty<string>();
@@ -63,12 +68,12 @@ public static class Utility
         }
     }
 
-    public static string GenerateSource(Options options, System.Collections.Immutable.ImmutableArray<string> properties, CancellationToken token)
+    public static string GenerateSource(System.Collections.Immutable.ImmutableArray<string> properties, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         StringBuilder builder = new();
-        builder.Append("namespace ")
-            .AppendLine(string.IsNullOrWhiteSpace(options.RootNamespace) ? "OptionsSourceGenerator" : options.RootNamespace)
+        builder
+            .AppendLine("namespace OptionsSourceGenerator")
             .AppendLine("{")
             .AppendLine("    public sealed partial class Options : global::System.IEquatable<Options>")
             .AppendLine("    {");

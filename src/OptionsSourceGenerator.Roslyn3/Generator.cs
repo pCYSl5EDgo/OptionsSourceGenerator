@@ -10,7 +10,6 @@ public sealed class Generator : ISourceGenerator
         CancellationToken cancellationToken = context.CancellationToken;
         cancellationToken.ThrowIfCancellationRequested();
         var analyzerConfigOptions = context.AnalyzerConfigOptions;
-        Options options = new(analyzerConfigOptions.GlobalOptions);
         SortedSet<string> set = new(StringComparer.OrdinalIgnoreCase);
         foreach (var file in context.AdditionalFiles)
         {
@@ -20,7 +19,7 @@ public sealed class Generator : ISourceGenerator
             }
         }
 
-        var source = Utility.GenerateSource(options, set.ToImmutableArray(), cancellationToken);
+        var source = Utility.GenerateSource(set.ToImmutableArray(), cancellationToken);
         context.AddSource("Options.cs", source);
     }
 
