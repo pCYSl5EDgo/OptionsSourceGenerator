@@ -13,7 +13,8 @@ public sealed class Generator : IIncrementalGenerator
 
         context.RegisterSourceOutput(properties, static (context, properties) =>
         {
-            context.AddSource("Options.cs", Utility.GenerateSource(properties, context.CancellationToken));
+            var text = Utility.GenerateSource(properties, context.CancellationToken);
+            context.AddSource("Options.cs", text);
         });
     }
 }

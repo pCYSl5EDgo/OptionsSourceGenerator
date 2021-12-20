@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\OptionsSourceGenerator\OptionsSourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<ItemGroup>
+			<AdditionalFiles Include="a.props" OptionsSourceGenerator="true" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.CodeAnalysis" Version="4.0.1" />
+	  <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
+	</ItemGroup>
+
+	<Import Project="../../src/OptionsSourceGenerator/build/OptionsSourceGenerator.props" />
+
+</Project>
