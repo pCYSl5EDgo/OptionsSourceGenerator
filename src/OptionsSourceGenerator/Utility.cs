@@ -67,12 +67,12 @@ public static class Utility
         }
     }
 
-    public static string GenerateSource(System.Collections.Immutable.ImmutableArray<string> properties, CancellationToken token)
+    public static string GenerateSource(System.Collections.Immutable.ImmutableArray<string> properties, Options options, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         StringBuilder builder = new();
         builder
-            .AppendLine("namespace OptionsSourceGenerator")
+            .Append("namespace ").AppendLine(options.RootNamespace ?? "OptionsSourceGenerator")
             .AppendLine("{")
             .AppendLine("    public sealed partial class Options : global::System.IEquatable<Options>")
             .AppendLine("    {");

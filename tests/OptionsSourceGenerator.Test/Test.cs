@@ -32,6 +32,6 @@ public class Test
     public void GenerationTest()
     {
         var set = Utility.SelectCompilerVisiblePropertySortedSet(source, default);
-        var code = Utility.GenerateSource(set.ToImmutableArray(), default);
+        var code = Utility.GenerateSource(set.ToImmutableArray(), new Options(default(string)), default);
     }
 }

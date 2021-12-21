@@ -11,9 +11,14 @@ public sealed class Generator : IIncrementalGenerator
             .WithComparer(StringComparer.Ordinal)
             .Collect();
 
-        context.RegisterSourceOutput(properties, static (context, properties) =>
+        var options = context.AnalyzerConfigOptionsProvider
+            .Select(Options.Select)
+            .WithComparer(EqualityComparer<Options>.Default);
+
+        context.RegisterSourceOutput(properties.Combine(options), static (context, pair) =>
         {
-            var text = Utility.GenerateSource(properties, context.CancellationToken);
+            var (properties, options) = pair;
+            var text = Utility.GenerateSource(properties, options, context.CancellationToken);
             context.AddSource("Options.cs", text);
         });
     }
