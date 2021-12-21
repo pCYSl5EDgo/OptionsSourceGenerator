@@ -8,8 +8,7 @@ public static class Utility
     public static IEnumerable<string> SelectCompilerVisibleProperty((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        if (pair.Left.Path.EndsWith(".props")
-        || pair.Left.Path.EndsWith(".targets")
+        if ((!pair.Left.Path.EndsWith(".props") && !pair.Left.Path.EndsWith(".targets"))
         || !pair.Right.GetOptions(pair.Left).TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
         {
             return Array.Empty<string>();
