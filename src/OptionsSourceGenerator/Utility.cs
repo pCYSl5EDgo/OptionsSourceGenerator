@@ -5,27 +5,32 @@ namespace OptionsSourceGenerator;
 
 public static class Utility
 {
-    public static (string?, ImmutableArray<string>) SelectGlobalCompilerVisibleProperty((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
+    public static (string?, string?, ImmutableArray<string>) SelectGlobalCompilerVisibleProperty((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         if ((!pair.Left.Path.EndsWith(".props") && !pair.Left.Path.EndsWith(".targets")))
         {
-            return (null, ImmutableArray<string>.Empty);
+            return default;
         }
 
         var options = pair.Right.GetOptions(pair.Left);
+        string? @namespace;
         if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_GlobalName", out var name))
         {
             name = null;
-            if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
+            if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_Namespace", out @namespace))
             {
-                return (null, ImmutableArray<string>.Empty);
+                @namespace = null;
+                if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
+                {
+                    return default;
+                }
             }
         }
 
         if (pair.Left.GetText(token) is not { Length: > 0 } text)
         {
-            return (null, ImmutableArray<string>.Empty);
+            return default;
         }
 
         if (string.IsNullOrEmpty(name))
@@ -33,7 +38,7 @@ public static class Utility
             name = Path.GetFileNameWithoutExtension(pair.Left.Path);
         }
 
-        return (name, SelectCompilerVisiblePropertySortedSet(text.ToString(), token));
+        return (@namespace, name, SelectCompilerVisiblePropertySortedSet(text.ToString(), token));
     }
 
     public static ImmutableArray<string> SelectCompilerVisiblePropertySortedSet(string text, CancellationToken token)
@@ -81,27 +86,31 @@ public static class Utility
         }
     }
 
-    public static (string?, ImmutableArray<string>) SelectAdditionalCompilerVisibleItemMetadata((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
+    public static (string?, string?, ImmutableArray<string>) SelectAdditionalCompilerVisibleItemMetadata((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         if ((!pair.Left.Path.EndsWith(".props") && !pair.Left.Path.EndsWith(".targets")))
         {
-            return (null, ImmutableArray<string>.Empty);
+            return default;
         }
 
         var options = pair.Right.GetOptions(pair.Left);
-        if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_AdditionalFilesName", out var name))
+        if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_AdditionalFileName", out var name))
         {
             name = null;
-            if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
+            if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_Namespace", out @namespace))
             {
-                return (null, ImmutableArray<string>.Empty);
+                @namespace = null;
+                if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
+                {
+                    return default;
+                }
             }
         }
 
         if (pair.Left.GetText(token) is not { Length: > 0 } text)
         {
-            return (null, ImmutableArray<string>.Empty);
+            return default;
         }
 
         if (string.IsNullOrEmpty(name))
@@ -109,7 +118,7 @@ public static class Utility
             name = Path.GetFileNameWithoutExtension(pair.Left.Path);
         }
 
-        return (name, SelectCompilerVisibleItemMetadataSortedSet(text.ToString(), token));
+        return (@namespace, name, SelectCompilerVisibleItemMetadataSortedSet(text.ToString(), token));
     }
 
     private static ImmutableArray<string> SelectCompilerVisibleItemMetadataSortedSet(string text, CancellationToken token)
