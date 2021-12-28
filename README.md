@@ -24,6 +24,6 @@ dotnet add package OptionsSourceGenerator
 </ItemGroup>
 
 <ItemGroup>
-    <AdditionalFiles Include="\build\Example.props" OptionsSourceGenerator="" />
+    <AdditionalFiles Include="\build\Example.props" OptionsSourceGenerator_Namespace="Exam" OptionsSourceGenerator_GlobalName="GlobalOptions" OptionsSourceGenerator_AdditionalFileName="AdditionalFileOptions" />
 </ItemGroup>
 ```
