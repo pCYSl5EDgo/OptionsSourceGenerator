@@ -1,5 +1,4 @@
 using Xunit;
-using System.Collections.Immutable;
 
 namespace OptionsSourceGenerator.Test;
 
@@ -25,13 +24,5 @@ public class Test
         Assert.True(enumerator.MoveNext());
         Assert.Equal("RootNamespace", enumerator.Current);
         Assert.False(enumerator.MoveNext());
-        enumerator.Dispose();
-    }
-
-    [Fact]
-    public void GenerationTest()
-    {
-        var set = Utility.SelectCompilerVisiblePropertySortedSet(source, default);
-        var code = Utility.GenerateSource(set.ToImmutableArray(), new Options(default(string)), default);
     }
 }

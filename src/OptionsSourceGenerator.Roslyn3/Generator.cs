@@ -1,6 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using System.Text;
 
-namespace OptionsSourceGenerator.Roslyn3;
+namespace OptionsSourceGenerator;
 
 [Generator(LanguageNames.CSharp)]
 public sealed class Generator : ISourceGenerator
@@ -11,17 +11,31 @@ public sealed class Generator : ISourceGenerator
         cancellationToken.ThrowIfCancellationRequested();
         var analyzerConfigOptions = context.AnalyzerConfigOptions;
         var options = Options.Select(analyzerConfigOptions, cancellationToken);
-        SortedSet<string> set = new(StringComparer.OrdinalIgnoreCase);
+        var builder = new StringBuilder();
+        string? text;
+        string? hintName;
         foreach (var file in context.AdditionalFiles)
         {
-            foreach (var property in Utility.SelectCompilerVisibleProperty((file, analyzerConfigOptions), cancellationToken))
+            var (name, properties) = Utility.SelectGlobalCompilerVisibleProperty((file, analyzerConfigOptions), cancellationToken);
+            if (name is not null && properties.Length > 0)
             {
-                set.Add(property);
+                var template = new GlobalOptionsTemplate(options.RootNamespace, name, null, properties);
+                template.TransformAppend(builder.Clear());
+                text = builder.ToString();
+                hintName = builder.Clear().Append(name).Append(".global.cs").ToString();
+                context.AddSource(hintName, text);
+            }
+
+            (name, properties) = Utility.SelectAdditionalCompilerVisibleItemMetadata((file, analyzerConfigOptions), cancellationToken);
+            if (name is not null && properties.Length > 0)
+            {
+                var template = new AdditionalFileOptionsTemplate(options.RootNamespace, name, null, properties);
+                template.TransformAppend(builder.Clear());
+                text = builder.ToString();
+                hintName = builder.Clear().Append(name).Append(".additional.cs").ToString();
+                context.AddSource(hintName, text);
             }
         }
-
-        var source = Utility.GenerateSource(set.ToImmutableArray(), options, cancellationToken);
-        context.AddSource("Options.cs", source);
     }
 
     public void Initialize(GeneratorInitializationContext context)

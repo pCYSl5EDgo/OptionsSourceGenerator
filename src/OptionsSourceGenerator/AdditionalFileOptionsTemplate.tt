@@ -1,0 +1,38 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+namespace <#= Namespace #>
+{
+	<#= Modifier #> <#= Name #> : global::System.IEquatable<<#= Name #>>
+	{
+<# foreach (var property in Properties) { #>
+		public string? <#= property #>;
+<# } #>
+
+		public <#= Name #>(global::Microsoft.CodeAnalysis.Diagnostics.AnalyzerConfigOptions options)
+		{
+<# foreach (var property in Properties) { #>
+			if (!options.TryGetValue("build_metadata.AdditionalFiles.<#= property #>", out <#= property #>))
+			{
+				<#= property #> = null;
+			}
+<# } #>
+		}
+
+<# if (Properties.Length == 0) { #>
+		public bool Equals(<#= Name #> other) => true;
+<# } else { #>
+		public bool Equals(<#= Name #> other) => <#= Properties[0] #> == other.<#= Properties[0] #><# for (int i = 1; i < Properties.Length; ++i) { #> && <#= Properties[i] #> == other.<#= Properties[i] #><# } #>;
+<# } #>
+
+		public static <#= Name #> Select(global::System.ValueTuple<global::Microsoft.CodeAnalysis.AdditionalText, global::Microsoft.CodeAnalysis.Diagnostics.AnalyzerConfigOptionsProvider> pair, global::System.Threading.CancellationToken token)
+		{
+			var (text, provider) = pair;
+			token.ThrowIfCancellationRequested();
+			var options = provider.GetOptions(text);
+			return new <#= Name #>(options);
+		}
+	}
+}

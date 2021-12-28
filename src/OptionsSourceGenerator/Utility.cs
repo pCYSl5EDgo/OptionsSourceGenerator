@@ -1,39 +1,53 @@
-﻿using System.Text;
+﻿using System.IO;
 using System.Xml;
 
 namespace OptionsSourceGenerator;
 
 public static class Utility
 {
-    public static IEnumerable<string> SelectCompilerVisibleProperty((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
+    public static (string?, ImmutableArray<string>) SelectGlobalCompilerVisibleProperty((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        if ((!pair.Left.Path.EndsWith(".props") && !pair.Left.Path.EndsWith(".targets"))
-        || !pair.Right.GetOptions(pair.Left).TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
+        if ((!pair.Left.Path.EndsWith(".props") && !pair.Left.Path.EndsWith(".targets")))
         {
-            return Array.Empty<string>();
+            return (null, ImmutableArray<string>.Empty);
+        }
+
+        var options = pair.Right.GetOptions(pair.Left);
+        if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_GlobalName", out var name))
+        {
+            name = null;
+            if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
+            {
+                return (null, ImmutableArray<string>.Empty);
+            }
         }
 
         if (pair.Left.GetText(token) is not { Length: > 0 } text)
         {
-            return Array.Empty<string>();
+            return (null, ImmutableArray<string>.Empty);
         }
 
-        return SelectCompilerVisiblePropertySortedSet(text.ToString(), token);
+        if (string.IsNullOrEmpty(name))
+        {
+            name = Path.GetFileNameWithoutExtension(pair.Left.Path);
+        }
+
+        return (name, SelectCompilerVisiblePropertySortedSet(text.ToString(), token));
     }
 
-    public static IEnumerable<string> SelectCompilerVisiblePropertySortedSet(string text, CancellationToken token)
+    public static ImmutableArray<string> SelectCompilerVisiblePropertySortedSet(string text, CancellationToken token)
     {
         var document = new XmlDocument();
         document.LoadXml(text);
         if (!document.HasChildNodes)
         {
-            return Array.Empty<string>();
+            return ImmutableArray<string>.Empty;
         }
 
         SortedSet<string> set = new(StringComparer.OrdinalIgnoreCase);
         RecursiveCompilerVisibleProperty(set, document.DocumentElement, token);
-        return set;
+        return set.ToImmutableArray();
     }
 
     private static void RecursiveCompilerVisibleProperty(SortedSet<string> set, XmlElement element, CancellationToken token)
@@ -67,70 +81,77 @@ public static class Utility
         }
     }
 
-    public static string GenerateSource(System.Collections.Immutable.ImmutableArray<string> properties, Options options, CancellationToken token)
+    public static (string?, ImmutableArray<string>) SelectAdditionalCompilerVisibleItemMetadata((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        StringBuilder builder = new();
-        builder
-            .Append("namespace ").AppendLine(options.RootNamespace ?? "OptionsSourceGenerator")
-            .AppendLine("{")
-            .AppendLine("    public sealed partial class Options : global::System.IEquatable<Options>")
-            .AppendLine("    {");
-
-        foreach (var property in properties)
+        if ((!pair.Left.Path.EndsWith(".props") && !pair.Left.Path.EndsWith(".targets")))
         {
-            token.ThrowIfCancellationRequested();
-            builder.Append("        public readonly string? ").Append(property).AppendLine(";");
+            return (null, ImmutableArray<string>.Empty);
         }
 
-        builder.AppendLine()
-            .AppendLine("        public Options(global::Microsoft.CodeAnalysis.Diagnostics.AnalyzerConfigOptions options)")
-            .AppendLine("        {");
-
-        foreach (var property in properties)
+        var options = pair.Right.GetOptions(pair.Left);
+        if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_GlobalName", out var name))
         {
-            token.ThrowIfCancellationRequested();
-            builder
-                .Append("            if (!options.TryGetValue(\"build_property.").Append(property).Append("\", out ").Append(property).AppendLine("))")
-                .AppendLine("            {")
-                .Append("                ").Append(property).AppendLine(" = null;")
-                .AppendLine("            }");
-
-        }
-
-        builder.AppendLine("        }")
-            .AppendLine()
-            .Append("        public bool Equals(Options other) => ");
-
-        if (properties.Length > 0)
-        {
-            var property = properties[0];
-            builder.Append(property).Append(" == other.").Append(property);
-
-            for (int i = 1; i < properties.Length; i++)
+            name = null;
+            if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
             {
-                token.ThrowIfCancellationRequested();
-                property = properties[i];
-                builder.Append(" && ").Append(property).Append(" == other.").Append(property);
+                return (null, ImmutableArray<string>.Empty);
+            }
+        }
+
+        if (pair.Left.GetText(token) is not { Length: > 0 } text)
+        {
+            return (null, ImmutableArray<string>.Empty);
+        }
+
+        if (string.IsNullOrEmpty(name))
+        {
+            name = Path.GetFileNameWithoutExtension(pair.Left.Path);
+        }
+
+        return (name, SelectCompilerVisibleItemMetadataSortedSet(text.ToString(), token));
+    }
+
+    private static ImmutableArray<string> SelectCompilerVisibleItemMetadataSortedSet(string text, CancellationToken token)
+    {
+        var document = new XmlDocument();
+        document.LoadXml(text);
+        if (!document.HasChildNodes)
+        {
+            return ImmutableArray<string>.Empty;
+        }
+
+        SortedSet<string> set = new(StringComparer.OrdinalIgnoreCase);
+        RecursiveCompilerVisibleItemMetadata(set, document.DocumentElement, token);
+        return set.ToImmutableArray();
+    }
+
+    private static void RecursiveCompilerVisibleItemMetadata(SortedSet<string> set, XmlElement element, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (element.Name == "CompilerVisibleItemMetadata")
+        {
+            var include = element.GetAttribute("Include");
+            if (include == "AdditionalFiles")
+            {
+                var metadataName = element.GetAttribute("MetadataName");
+                if (!string.IsNullOrEmpty(metadataName))
+                {
+                    set.Add(metadataName);
+                }
             }
 
-            builder.AppendLine(";");
-        }
-        else
-        {
-            builder.AppendLine("true;");
+            return;
         }
 
-        token.ThrowIfCancellationRequested();
-        return builder
-            .AppendLine("        public static Options Select(global::Microsoft.CodeAnalysis.Diagnostics.AnalyzerConfigOptionsProvider provider, global::System.Threading.CancellationToken token)")
-            .AppendLine("        {")
-            .AppendLine("            token.ThrowIfCancellationRequested();")
-            .AppendLine("            return new Options(provider.GlobalOptions);")
-            .AppendLine("        }")
-            .AppendLine("    }")
-            .AppendLine("}")
-            .AppendLine()
-            .ToString();
+        var nodes = element.ChildNodes;
+        for (int i = 0, count = nodes.Count; i < count; i++)
+        {
+            var node = nodes[i];
+            if (node is XmlElement xmlElement)
+            {
+                RecursiveCompilerVisibleProperty(set, xmlElement, token);
+            }
+        }
     }
 }

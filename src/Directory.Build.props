@@ -4,12 +4,13 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <IsRoslynComponent>true</IsRoslynComponent>
         <LangVersion>10</LangVersion>
-        <Version>0.1.4</Version>
+        <Version>0.1.5</Version>
         <Deterministic>true</Deterministic>
         <Nullable>enable</Nullable>
         <Authors>pCYSl5EDgo</Authors>
         <Copyright>pCYSl5EDgo</Copyright>
-        <RepositoryUrl>https://github.com/pCYSl5EDgo/OptionsSourceGenerator</RepositoryUrl>
+        <RootNamespace>OptionsSourceGenerator</RootNamespace>
+        <RepositoryUrl>https://github.com/pCYSl5EDgo/$(RootNamespace)</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     </PropertyGroup>
@@ -19,11 +20,18 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="RuntimeT4Generator" Version="0.0.3">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <AdditionalFiles Include="../$(RootNamespace)/GlobalOptionsTemplate.tt" RuntimeT4Generator="" />
+        <AdditionalFiles Include="../$(RootNamespace)/AdditionalFileOptionsTemplate.tt" RuntimeT4Generator="" />
     </ItemGroup>
 
     <ItemGroup>
         <Using Include="System"/>
         <Using Include="System.Collections.Generic"/>
+        <Using Include="System.Collections.Immutable"/>
         <Using Include="System.Threading"/>
         <Using Include="Microsoft.CodeAnalysis" />
         <Using Include="Microsoft.CodeAnalysis.CSharp" />

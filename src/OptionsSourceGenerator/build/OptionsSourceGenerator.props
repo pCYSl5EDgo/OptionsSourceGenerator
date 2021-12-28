@@ -3,5 +3,7 @@
 	<ItemGroup>
 		<CompilerVisibleProperty Include="RootNamespace" />
 		<CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="OptionsSourceGenerator" />
+		<CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="OptionsSourceGenerator_GlobalName" />
+		<CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="OptionsSourceGenerator_AdditionalFilesName" />
 	</ItemGroup>
 </Project>
