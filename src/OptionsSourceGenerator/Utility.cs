@@ -5,6 +5,8 @@ namespace OptionsSourceGenerator;
 
 public static class Utility
 {
+    private const string Prefix = "build_metadata.AdditionalFiles.OptionsSourceGenerator_";
+
     public static (string?, string?, ImmutableArray<string>) SelectGlobalCompilerVisibleProperty((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
@@ -15,10 +17,10 @@ public static class Utility
 
         var options = pair.Right.GetOptions(pair.Left);
         string? @namespace = null;
-        if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_GlobalName", out var name))
+        if (!options.TryGetValue(Prefix + "GlobalName", out var name))
         {
             name = null;
-            if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_Namespace", out @namespace))
+            if (!options.TryGetValue(Prefix +  "Namespace", out @namespace))
             {
                 @namespace = null;
                 if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
@@ -96,10 +98,10 @@ public static class Utility
 
         var options = pair.Right.GetOptions(pair.Left);
         string? @namespace = null;
-        if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_AdditionalFileName", out var name))
+        if (!options.TryGetValue(Prefix + "AdditionalFileName", out var name))
         {
             name = null;
-            if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_Namespace", out @namespace))
+            if (!options.TryGetValue(Prefix + "Namespace", out @namespace))
             {
                 @namespace = null;
                 if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
@@ -160,7 +162,7 @@ public static class Utility
             var node = nodes[i];
             if (node is XmlElement xmlElement)
             {
-                RecursiveCompilerVisibleProperty(set, xmlElement, token);
+                RecursiveCompilerVisibleItemMetadata(set, xmlElement, token);
             }
         }
     }
