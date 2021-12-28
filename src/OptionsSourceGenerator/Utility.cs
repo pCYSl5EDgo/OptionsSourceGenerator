@@ -90,7 +90,7 @@ public static class Utility
         }
 
         var options = pair.Right.GetOptions(pair.Left);
-        if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_GlobalName", out var name))
+        if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_AdditionalFilesName", out var name))
         {
             name = null;
             if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
