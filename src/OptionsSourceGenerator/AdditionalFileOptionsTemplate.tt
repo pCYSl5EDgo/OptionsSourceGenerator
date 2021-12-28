@@ -7,7 +7,7 @@ namespace <#= Namespace #>
 {
 	<#= Modifier #> <#= Name #> : global::System.IEquatable<<#= Name #>>
 	{
-		global::System.ValueTuple<global::Microsoft.CodeAnalysis.AdditionalText <#= FieldName #>;
+		public global::System.ValueTuple<global::Microsoft.CodeAnalysis.AdditionalText <#= FieldName #>;
 <# foreach (var property in Properties) { #>
 		public string? <#= property #>;
 <# } #>
