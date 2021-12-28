@@ -88,7 +88,7 @@ public static class Utility
         }
     }
 
-    public static (string?, string?, ImmutableArray<string>) SelectAdditionalCompilerVisibleItemMetadata((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
+    public static (string?, string?, string?, ImmutableArray<string>) SelectAdditionalCompilerVisibleItemMetadata((AdditionalText Left, AnalyzerConfigOptionsProvider Right) pair, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         if ((!pair.Left.Path.EndsWith(".props") && !pair.Left.Path.EndsWith(".targets")))
@@ -98,15 +98,20 @@ public static class Utility
 
         var options = pair.Right.GetOptions(pair.Left);
         string? @namespace = null;
+        string? field = null;
         if (!options.TryGetValue(Prefix + "AdditionalFileName", out var name))
         {
             name = null;
             if (!options.TryGetValue(Prefix + "Namespace", out @namespace))
             {
                 @namespace = null;
-                if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
+                if (!options.TryGetValue(Prefix + "AdditionalFileFieldName", out field))
                 {
-                    return default;
+                    field = null;
+                    if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator", out _))
+                    {
+                        return default;
+                    }
                 }
             }
         }
@@ -121,7 +126,7 @@ public static class Utility
             name = Path.GetFileNameWithoutExtension(pair.Left.Path);
         }
 
-        return (@namespace, name, SelectCompilerVisibleItemMetadataSortedSet(text.ToString(), token));
+        return (@namespace, name, field, SelectCompilerVisibleItemMetadataSortedSet(text.ToString(), token));
     }
 
     private static ImmutableArray<string> SelectCompilerVisibleItemMetadataSortedSet(string text, CancellationToken token)

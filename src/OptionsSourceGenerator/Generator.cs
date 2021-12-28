@@ -15,7 +15,7 @@ public sealed class Generator : IIncrementalGenerator
         var additionalFilesProperties = context.AdditionalTextsProvider
             .Combine(context.AnalyzerConfigOptionsProvider)
             .Select(Utility.SelectAdditionalCompilerVisibleItemMetadata)
-            .Where(x => x is { Item2: not null, Item3.Length: > 0 });
+            .Where(x => x is { Item2: not null, Item4.Length: > 0 });
 
         var options = context.AnalyzerConfigOptionsProvider
             .Select(Options.Select)
@@ -34,8 +34,8 @@ public sealed class Generator : IIncrementalGenerator
 
         context.RegisterSourceOutput(additionalFilesProperties.Combine(options), static (context, pair) =>
         {
-            var ((@namespace, name, properties), options) = pair;
-            var template = new AdditionalFileOptionsTemplate(@namespace ?? options.RootNamespace, name, null, properties);
+            var ((@namespace, name, field, properties), options) = pair;
+            var template = new AdditionalFileOptionsTemplate(@namespace ?? options.RootNamespace, name, field, null, properties);
             var builder = new StringBuilder();
             template.TransformAppend(builder);
             var text = builder.ToString();
