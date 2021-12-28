@@ -12,7 +12,7 @@ namespace <#= Namespace #>
 		public string? <#= property #>;
 <# } #>
 
-		public <#= Name #>(global::System.ValueTuple<global::Microsoft.CodeAnalysis.AdditionalText text, global::Microsoft.CodeAnalysis.Diagnostics.AnalyzerConfigOptions options)
+		public <#= Name #>(global::Microsoft.CodeAnalysis.AdditionalText text, global::Microsoft.CodeAnalysis.Diagnostics.AnalyzerConfigOptions options)
 		{
 			<#= FieldName #> = text;
 <# foreach (var property in Properties) { #>
