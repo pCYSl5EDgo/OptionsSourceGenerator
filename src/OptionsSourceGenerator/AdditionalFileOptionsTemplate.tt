@@ -7,12 +7,14 @@ namespace <#= Namespace #>
 {
 	<#= Modifier #> <#= Name #> : global::System.IEquatable<<#= Name #>>
 	{
+		global::System.ValueTuple<global::Microsoft.CodeAnalysis.AdditionalText <#= FieldName #>;
 <# foreach (var property in Properties) { #>
 		public string? <#= property #>;
 <# } #>
 
-		public <#= Name #>(global::Microsoft.CodeAnalysis.Diagnostics.AnalyzerConfigOptions options)
+		public <#= Name #>(global::System.ValueTuple<global::Microsoft.CodeAnalysis.AdditionalText text, global::Microsoft.CodeAnalysis.Diagnostics.AnalyzerConfigOptions options)
 		{
+			<#= FieldName #> = text;
 <# foreach (var property in Properties) { #>
 			if (!options.TryGetValue("build_metadata.AdditionalFiles.<#= property #>", out <#= property #>))
 			{
