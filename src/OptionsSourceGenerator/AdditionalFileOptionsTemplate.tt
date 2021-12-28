@@ -34,7 +34,7 @@ namespace <#= Namespace #>
 			var (text, provider) = pair;
 			token.ThrowIfCancellationRequested();
 			var options = provider.GetOptions(text);
-			return new <#= Name #>(options);
+			return new <#= Name #>(text, options);
 		}
 	}
 }
