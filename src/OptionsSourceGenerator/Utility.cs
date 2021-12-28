@@ -14,7 +14,7 @@ public static class Utility
         }
 
         var options = pair.Right.GetOptions(pair.Left);
-        string? @namespace;
+        string? @namespace = null;
         if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_GlobalName", out var name))
         {
             name = null;
@@ -95,6 +95,7 @@ public static class Utility
         }
 
         var options = pair.Right.GetOptions(pair.Left);
+        string? @namespace = null;
         if (!options.TryGetValue("build_metadata.AdditionalFiles.OptionsSourceGenerator_AdditionalFileName", out var name))
         {
             name = null;

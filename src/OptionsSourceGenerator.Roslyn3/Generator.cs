@@ -16,20 +16,20 @@ public sealed class Generator : ISourceGenerator
         string? hintName;
         foreach (var file in context.AdditionalFiles)
         {
-            var (name, properties) = Utility.SelectGlobalCompilerVisibleProperty((file, analyzerConfigOptions), cancellationToken);
+            var (@namespace, name, properties) = Utility.SelectGlobalCompilerVisibleProperty((file, analyzerConfigOptions), cancellationToken);
             if (name is not null && properties.Length > 0)
             {
-                var template = new GlobalOptionsTemplate(options.RootNamespace, name, null, properties);
+                var template = new GlobalOptionsTemplate(@namespace ?? options.RootNamespace, name, null, properties);
                 template.TransformAppend(builder.Clear());
                 text = builder.ToString();
                 hintName = builder.Clear().Append(name).Append(".global.cs").ToString();
                 context.AddSource(hintName, text);
             }
 
-            (name, properties) = Utility.SelectAdditionalCompilerVisibleItemMetadata((file, analyzerConfigOptions), cancellationToken);
+            (@namespace, name, properties) = Utility.SelectAdditionalCompilerVisibleItemMetadata((file, analyzerConfigOptions), cancellationToken);
             if (name is not null && properties.Length > 0)
             {
-                var template = new AdditionalFileOptionsTemplate(options.RootNamespace, name, null, properties);
+                var template = new AdditionalFileOptionsTemplate(@namespace ?? options.RootNamespace, name, null, properties);
                 template.TransformAppend(builder.Clear());
                 text = builder.ToString();
                 hintName = builder.Clear().Append(name).Append(".additional.cs").ToString();

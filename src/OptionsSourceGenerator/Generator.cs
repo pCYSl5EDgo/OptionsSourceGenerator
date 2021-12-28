@@ -10,12 +10,12 @@ public sealed class Generator : IIncrementalGenerator
         var globalProperties = context.AdditionalTextsProvider
             .Combine(context.AnalyzerConfigOptionsProvider)
             .Select(Utility.SelectGlobalCompilerVisibleProperty)
-            .Where(x => x is { Item1: not null, Item2: not null, Item3.Length: > 0 });
+            .Where(x => x is { Item2: not null, Item3.Length: > 0 });
 
         var additionalFilesProperties = context.AdditionalTextsProvider
             .Combine(context.AnalyzerConfigOptionsProvider)
             .Select(Utility.SelectAdditionalCompilerVisibleItemMetadata)
-            .Where(x => x is { Item1: not null, Item2: not null, Item3.Length: > 0 });
+            .Where(x => x is { Item2: not null, Item3.Length: > 0 });
 
         var options = context.AnalyzerConfigOptionsProvider
             .Select(Options.Select)
