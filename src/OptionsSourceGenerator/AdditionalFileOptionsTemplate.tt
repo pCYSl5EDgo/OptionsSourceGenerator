@@ -3,6 +3,8 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
+#pragma warning disable CS8618
+
 namespace <#= Namespace #>
 {
 	<#= Modifier #> <#= Name #> : global::System.IEquatable<<#= Name #>>
@@ -38,3 +40,5 @@ namespace <#= Namespace #>
 		}
 	}
 }
+
+#pragma warning restore CS8618
